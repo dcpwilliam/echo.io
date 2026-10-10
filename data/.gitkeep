@@ -1,0 +1,1 @@
+# 运行后会在 data/users/<user_id>.json 生成用户数据，这个目录需要存在

@@ -1,0 +1,23 @@
+services:
+  aiservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: timeline-aiservice:latest
+    container_name: timeline-aiservice
+    ports:
+      - "8100:8100"
+    environment:
+      - AISERVICE_HOST=0.0.0.0
+      - AISERVICE_PORT=8100
+      - AISERVICE_STORAGE=sqlite
+      - AISERVICE_DATA_DIR=/app/data
+      # 接本地大模型 / 云端 LLM 时按需覆盖（取消注释并填值）：
+      # - LLM_PROVIDER=openai
+      # - LLM_BASE_URL=http://host.docker.internal:1337/v1
+      # - LLM_API_KEY=ollama
+      # - LLM_MODEL=LiquidAI/LFM2_5-2_6B-Q4_K_M
+    volumes:
+      # 数据持久化到宿主 ./data，容器重启不丢
+      - ./data:/app/data
+    restart: unless-stopped

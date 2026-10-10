@@ -1,0 +1,62 @@
+{
+  "user": {
+    "id": "u_7cff29008079",
+    "name": "小明",
+    "email": "",
+    "sub": "",
+    "createdAt": 1791090810939,
+    "updatedAt": 1791090811733,
+    "settings": {
+      "window": 7,
+      "llmProvider": "echo"
+    }
+  },
+  "goals": [
+    {
+      "id": "g_f62ca24d5ef9",
+      "title": "三个月内减重 10 斤",
+      "criterion": "在3个 · 3个月之内，我能明确说出它已经完成了",
+      "categoryKey": "fitness",
+      "categoryName": "健康塑形",
+      "color": "#12B886",
+      "target": {
+        "value": 3.0,
+        "unit": "个"
+      },
+      "current": 0.0,
+      "currentUnit": null,
+      "horizonDays": 90,
+      "horizonLabel": "3个月",
+      "status": "active",
+      "createdAt": 1791090811134,
+      "updatedAt": 1791090811530,
+      "lastMentionAt": 1791090811530,
+      "mentions": [
+        {
+          "text": "这周又没坚持下来",
+          "ts": 1791090811530,
+          "intent": "setback"
+        },
+        {
+          "text": "今天跑了 3 公里",
+          "ts": 1791090811335,
+          "intent": "progress"
+        },
+        {
+          "text": "三个月内减重 10 斤",
+          "ts": 1791090811134,
+          "intent": "new"
+        }
+      ],
+      "progress": 0,
+      "momentum": 0,
+      "stalledDays": 0,
+      "advice": "还没有落地的行动，从下面的建议里挑一条放进时间线。",
+      "taskDone": 0,
+      "taskTotal": 0
+    }
+  ],
+  "records": [],
+  "messages": [],
+  "updatedAt": 1791090811733
+}

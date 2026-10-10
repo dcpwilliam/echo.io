@@ -1,0 +1,18 @@
+{
+  "user": {
+    "id": "anonymous",
+    "name": "用户anon",
+    "email": "",
+    "sub": "",
+    "createdAt": 1791118995090,
+    "updatedAt": 1791222730082,
+    "settings": {
+      "window": 7,
+      "llmProvider": "echo"
+    }
+  },
+  "goals": [],
+  "records": [],
+  "messages": [],
+  "updatedAt": 1791222730082
+}

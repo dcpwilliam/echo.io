@@ -1,0 +1,18 @@
+{
+  "user": {
+    "id": "legacy_demo",
+    "name": "用户lega",
+    "email": "",
+    "sub": "",
+    "createdAt": 1791090824001,
+    "updatedAt": 1791222677592,
+    "settings": {
+      "window": 7,
+      "llmProvider": "echo"
+    }
+  },
+  "goals": [],
+  "records": [],
+  "messages": [],
+  "updatedAt": 1791222677592
+}

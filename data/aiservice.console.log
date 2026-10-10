@@ -1,0 +1,60 @@
+────────────────────────────────────────
+ aiservice · Timeline 的 Python 侧服务
+────────────────────────────────────────
+ Python   : Python 3.13.12
+ 监听     : http://127.0.0.1:8100
+ 数据目录 : /Users/williamleon/Desktop/dcpwilliam.github.io/timeline-miniprogram/aiservice/data
+ LLM      : openai @ http://127.0.0.1:1337/v1 · LiquidAI/LFM2_5-2_6B-Q4_K_M
+────────────────────────────────────────
+
+2026-10-07 00:28:41.358 INFO  [aiservice.access] → #be88a134 GET /health
+2026-10-07 00:28:41.371 INFO  [aiservice.access] ← #be88a134 GET /health 200 14.9ms
+2026-10-07 00:29:09.379 INFO  [aiservice.access] → #deff1839 POST /api/users
+2026-10-07 00:29:09.385 INFO  [aiservice.access] ← #deff1839 POST /api/users 200 6.3ms
+2026-10-07 00:29:09.386 INFO  [aiservice.access] → #632ebf75 POST /api/timeline/ingest?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.389 INFO  [aiservice.goal  ] ingest | user=u_67c1b28b2964 新建 目标=三个月内减重 10 斤 意图=new 分数=0.00 目标数=1
+2026-10-07 00:29:09.390 INFO  [aiservice.access] ← #632ebf75 POST /api/timeline/ingest 200 4.1ms
+2026-10-07 00:29:09.391 INFO  [aiservice.access] → #cac8efac POST /api/timeline/goals/g_b5956e9604fa/actions?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.394 INFO  [aiservice.goal  ] 加任务 | user=u_67c1b28b2964 目标=三个月内减重 10 斤 条数=2 点数合计=30
+2026-10-07 00:29:09.394 INFO  [aiservice.access] ← #cac8efac POST /api/timeline/goals/g_b5956e9604fa/actions 200 3.4ms
+2026-10-07 00:29:09.395 INFO  [aiservice.access] → #ceff17cb GET /api/timeline?user_id=u_67c1b28b2964&days=3
+2026-10-07 00:29:09.398 INFO  [aiservice.access] ← #ceff17cb GET /api/timeline 200 3.3ms
+2026-10-07 00:29:09.399 INFO  [aiservice.access] → #39d1d40a GET /api/timeline/goals?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.402 INFO  [aiservice.access] ← #39d1d40a GET /api/timeline/goals 200 3.2ms
+2026-10-07 00:29:09.402 INFO  [aiservice.access] → #a66a0111 PATCH /api/timeline/tasks/t_1035ca733d4a?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.405 INFO  [aiservice.timeline] 勾选任务 | user=u_67c1b28b2964 task=t_1035ca733d4a done=True 记录进度=50%
+2026-10-07 00:29:09.405 INFO  [aiservice.access] ← #a66a0111 PATCH /api/timeline/tasks/t_1035ca733d4a 200 3.2ms
+2026-10-07 00:29:09.406 INFO  [aiservice.access] → #1e6f9097 GET /api/timeline/goals?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.409 INFO  [aiservice.access] ← #1e6f9097 GET /api/timeline/goals 200 3.0ms
+2026-10-07 00:29:09.410 INFO  [aiservice.access] → #128d39bb GET /api/timeline/badges?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.412 INFO  [aiservice.access] ← #128d39bb GET /api/timeline/badges 200 3.0ms
+2026-10-07 00:29:09.413 INFO  [aiservice.access] → #690ab341 POST /api/timeline/goals/g_b5956e9604fa/actions?user_id=u_67c1b28b2964
+2026-10-07 00:29:09.416 INFO  [aiservice.goal  ] 加任务 | user=u_67c1b28b2964 目标=三个月内减重 10 斤 条数=1 点数合计=30
+2026-10-07 00:29:09.416 INFO  [aiservice.access] ← #690ab341 POST /api/timeline/goals/g_b5956e9604fa/actions 200 3.4ms
+2026-10-07 00:29:09.417 INFO  [aiservice.access] → #ee7ff916 DELETE /api/users/u_67c1b28b2964
+2026-10-07 00:29:09.420 INFO  [aiservice.access] ← #ee7ff916 DELETE /api/users/u_67c1b28b2964 200 3.3ms
+2026-10-07 00:29:23.272 INFO  [aiservice.access] → #c99bd13a POST /api/users
+2026-10-07 00:29:23.279 INFO  [aiservice.access] ← #c99bd13a POST /api/users 200 7.7ms
+2026-10-07 00:29:23.281 INFO  [aiservice.access] → #48a662f1 POST /api/timeline/ingest?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.284 INFO  [aiservice.goal  ] ingest | user=u_1d8764fdcfe9 新建 目标=三个月内减重 10 斤 意图=new 分数=0.00 目标数=1
+2026-10-07 00:29:23.285 INFO  [aiservice.access] ← #48a662f1 POST /api/timeline/ingest 200 4.2ms
+2026-10-07 00:29:23.285 INFO  [aiservice.access] → #8ceb1f86 POST /api/timeline/ingest?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.289 INFO  [aiservice.goal  ] ingest | user=u_1d8764fdcfe9 新建 目标=这学期把英语捡起来 意图=new 分数=0.00 目标数=2
+2026-10-07 00:29:23.290 INFO  [aiservice.access] ← #8ceb1f86 POST /api/timeline/ingest 200 4.2ms
+2026-10-07 00:29:23.290 INFO  [aiservice.access] → #2435e315 POST /api/timeline/ingest?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.293 INFO  [aiservice.goal  ] ingest | user=u_1d8764fdcfe9 新建 目标=存够 5 万 意图=new 分数=0.00 目标数=3
+2026-10-07 00:29:23.294 INFO  [aiservice.access] ← #2435e315 POST /api/timeline/ingest 200 3.3ms
+2026-10-07 00:29:23.294 INFO  [aiservice.access] → #e8544462 POST /api/timeline/goals/g_fe522e1b492f/finish?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.298 INFO  [aiservice.access] ← #e8544462 POST /api/timeline/goals/g_fe522e1b492f/finish 200 3.4ms
+2026-10-07 00:29:23.298 INFO  [aiservice.access] → #30e1825b GET /api/timeline/badges?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.301 INFO  [aiservice.access] ← #30e1825b GET /api/timeline/badges 200 3.1ms
+2026-10-07 00:29:23.302 INFO  [aiservice.access] → #36f6ad3e POST /api/timeline/goals/g_12422b33923a/finish?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.305 INFO  [aiservice.access] ← #36f6ad3e POST /api/timeline/goals/g_12422b33923a/finish 200 3.1ms
+2026-10-07 00:29:23.305 INFO  [aiservice.access] → #17948f9c GET /api/timeline/badges?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.308 INFO  [aiservice.access] ← #17948f9c GET /api/timeline/badges 200 3.1ms
+2026-10-07 00:29:23.309 INFO  [aiservice.access] → #154b66a1 POST /api/timeline/goals/g_2f3aacbfee3d/finish?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.312 INFO  [aiservice.access] ← #154b66a1 POST /api/timeline/goals/g_2f3aacbfee3d/finish 200 3.0ms
+2026-10-07 00:29:23.312 INFO  [aiservice.access] → #985eadd0 GET /api/timeline/badges?user_id=u_1d8764fdcfe9
+2026-10-07 00:29:23.316 INFO  [aiservice.access] ← #985eadd0 GET /api/timeline/badges 200 3.1ms
+2026-10-07 00:29:23.316 INFO  [aiservice.access] → #930b191f DELETE /api/users/u_1d8764fdcfe9
+2026-10-07 00:29:23.320 INFO  [aiservice.access] ← #930b191f DELETE /api/users/u_1d8764fdcfe9 200 3.4ms

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>aiservice 管理后台</title>
+<style>
+  :root {
+    --bg:#f5f7fa; --panel:#fff; --ink:#1f2937; --muted:#6b7280; --line:#e5e7eb;
+    --brand:#5B6CFF; --brand-soft:#eef0ff; --ok:#12b886; --warn:#E8590C; --red:#e03131;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.55; }
+  .topbar { background:#1f2937; color:#fff; padding:12px 22px; display:flex; align-items:center;
+    gap:14px; position:sticky; top:0; z-index:5; }
+  .topbar .logo { font-weight:700; font-size:16px; letter-spacing:.3px; }
+  .topbar .spacer { flex:1; }
+  .topbar .who { font-size:13px; color:#cbd5e1; }
+  .topbar button { background:#374151; color:#fff; border:0; border-radius:8px; padding:7px 14px;
+    font-size:13px; cursor:pointer; }
+  .topbar button:hover { background:#4b5563; }
+  .wrap { max-width:920px; margin:0 auto; padding:22px 20px 60px; }
+  h2 { font-size:18px; margin:0 0 14px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:18px; }
+  .tabs { display:flex; gap:6px; border-bottom:1px solid var(--line); margin-bottom:18px; flex-wrap:wrap; }
+  .tab { padding:9px 16px; font-size:14px; cursor:pointer; border:0; background:transparent;
+    color:var(--muted); border-bottom:2px solid transparent; margin-bottom:-1px; }
+  .tab.active { color:var(--brand); border-bottom-color:var(--brand); font-weight:600; }
+  .pane { display:none; } .pane.active { display:block; }
+  label { display:block; font-size:13px; color:var(--muted); margin:0 0 6px; }
+  textarea, input[type=text], input[type=number], input[type=password] { width:100%; border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; color:var(--ink); background:#fff; }
+  textarea { resize:vertical; min-height:64px; }
+  .row { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; }
+  .field { flex:1; min-width:200px; } .field.n { flex:0 0 110px; }
+  .switch { display:flex; align-items:center; gap:8px; font-size:13px; user-select:none; cursor:pointer; padding-bottom:6px; }
+  .switch input { width:16px; height:16px; accent-color:var(--brand); }
+  button.primary { background:var(--brand); color:#fff; border:0; border-radius:10px; padding:11px 20px;
+    font-size:14px; font-weight:600; cursor:pointer; }
+  button.primary:hover { opacity:.9; } button.primary:disabled { opacity:.55; cursor:progress; }
+  .status { font-size:12px; color:var(--muted); margin-top:12px; min-height:16px; }
+  .status.err { color:var(--red); }
+  .badges { display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 14px; }
+  .badge { font-size:12px; padding:3px 10px; border-radius:999px; border:1px solid var(--line);
+    background:#fafbff; color:var(--muted); }
+  .badge.provider { background:var(--brand-soft); color:var(--brand); border-color:#d9def8; }
+  .badge.warn { background:#fff4e6; color:var(--warn); border-color:#ffd8a8; }
+  .badge.ok { background:#e6fcf5; color:var(--ok); border-color:#b2f2e6; }
+  .answer { border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px; }
+  .answer .top { display:flex; align-items:baseline; gap:10px; margin-bottom:8px; }
+  .rank { font-weight:700; color:var(--brand); font-size:15px; flex:0 0 auto; }
+  .ans-text { font-size:15px; font-weight:600; flex:1; }
+  .prob { font-variant-numeric:tabular-nums; font-weight:700; color:var(--ok); font-size:15px; flex:0 0 auto; }
+  .bar { height:8px; background:#eef0f4; border-radius:999px; overflow:hidden; margin:4px 0 8px; }
+  .bar > i { display:block; height:100%; background:linear-gradient(90deg,#5B6CFF,#12b886); border-radius:999px; }
+  .reason { font-size:13px; color:var(--muted); }
+  pre { background:#0f172a; color:#e2e8f0; padding:14px; border-radius:10px; overflow:auto; font-size:12px;
+    line-height:1.5; max-height:380px; }
+  .empty { color:var(--muted); font-size:14px; text-align:center; padding:24px 0; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:6px 16px; font-size:13px; }
+  .kv b { color:var(--muted); font-weight:500; }
+  .rtable { width:100%; border-collapse:collapse; font-size:13px; }
+  .rtable th, .rtable td { text-align:left; padding:7px 10px; border-bottom:1px solid var(--line); }
+  .rtable th { color:var(--muted); font-weight:600; }
+  .rtable code { background:#f3f4f6; padding:1px 6px; border-radius:5px; }
+  .pill { font-size:12px; padding:1px 8px; border-radius:6px; background:var(--brand-soft); color:var(--brand); }
+  /* 登录 */
+  #login-view .card { max-width:380px; margin:8vh auto 0; }
+  .hidden { display:none !important; }
+  details summary { cursor:pointer; font-size:13px; color:var(--brand); }
+  select { width:100%; border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+    font-size:14px; font-family:inherit; color:var(--ink); background:#fff; }
+  .prov-row { display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .prov-row:last-child { border-bottom:0; }
+  .prov-main { flex:1; min-width:0; }
+  .prov-name { font-weight:600; font-size:14px; }
+  .prov-meta { font-size:12px; color:var(--muted); margin-top:3px; word-break:break-all; }
+  .prov-actions { display:flex; gap:6px; flex-wrap:wrap; flex:0 0 auto; }
+  .prov-actions button { font-size:12px; padding:5px 10px; border-radius:8px; border:1px solid var(--line);
+    background:#fff; cursor:pointer; color:var(--ink); }
+  .prov-actions button:hover { border-color:var(--brand); color:var(--brand); }
+  .prov-actions button.danger { color:var(--red); }
+  .prov-actions button.danger:hover { border-color:var(--red); color:var(--red); }
+  .prov-actions button:disabled { opacity:.5; cursor:progress; }
+  .badge.default { background:#e6fcf5; color:var(--ok); border-color:#b2f2e6; }
+  .badge.echo { background:#eef0ff; color:var(--brand); border-color:#d9def8; }
+  .badge.openai { background:#fff4e6; color:var(--warn); border-color:#ffd8a8; }
+  .form-card { margin-bottom:18px; }
+  .form-card h2 { margin-bottom:12px; }
+  .hint { font-size:12px; color:var(--muted); margin-top:-4px; margin-bottom:10px; }
+</style>
+</head>
+<body>
+
+<div class="topbar" id="topbar">
+  <span class="logo">⚡ aiservice 管理后台</span>
+  <span class="spacer"></span>
+  <span class="who" id="who"></span>
+  <button id="logout" class="hidden">退出登录</button>
+</div>
+
+<!-- 登录视图 -->
+<div id="login-view" class="wrap hidden">
+  <div class="card">
+    <h2>登录</h2>
+    <div class="field" style="margin-bottom:12px">
+      <label for="lu">用户名</label>
+      <input id="lu" type="text" value="admin">
+    </div>
+    <div class="field" style="margin-bottom:14px">
+      <label for="lp">密码</label>
+      <input id="lp" type="password" value="admin">
+    </div>
+    <button class="primary" id="loginBtn">登录</button>
+    <div class="status" id="loginStatus">默认账号 admin / admin（请尽快修改）。</div>
+  </div>
+</div>
+
+<!-- 主视图 -->
+<div id="app-view" class="wrap hidden">
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">概览</button>
+    <button class="tab" data-tab="testbench">测试台</button>
+    <button class="tab" data-tab="manage">管理</button>
+    <button class="tab" data-tab="routes">接口清单</button>
+  </div>
+
+  <!-- 概览 -->
+  <div class="pane active" id="pane-overview">
+    <div class="card" id="healthCard"><div class="empty">加载中…</div></div>
+    <div class="card" id="providerCard">
+      <div class="row" style="align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">LLM Provider 管理</h2>
+        <button class="primary" id="provAdd" style="margin-left:auto">+ 新增 Provider</button>
+      </div>
+      <div id="provStatus" class="status"></div>
+      <div id="provTable"><div class="empty">加载中…</div></div>
+    </div>
+    <div id="providerFormSlot"></div>
+  </div>
+
+  <!-- 测试台 -->
+  <div class="pane" id="pane-testbench">
+    <div class="card">
+      <div class="row">
+        <div class="field">
+          <label for="q">问题 / 待预测事件</label>
+          <textarea id="q" placeholder="例如：明天 A 股大盘会涨还是跌？">明天 A 股大盘会涨还是跌？</textarea>
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <div class="field n">
+          <label for="n">答案数量 n (1–10)</label>
+          <input id="n" type="number" min="1" max="10" value="3">
+        </div>
+        <label class="switch" title="勾选后才会真正调用大模型；不勾走本地规则占位">
+          <input id="useLlm" type="checkbox"> 调用真实大模型 (use_llm)
+        </label>
+        <button class="primary" id="go" style="margin-left:auto">预测</button>
+      </div>
+      <div class="status" id="status">就绪。</div>
+    </div>
+    <div class="card">
+      <div id="badges" class="badges" style="display:none"></div>
+      <div id="results"></div>
+      <details>
+        <summary>查看原始 JSON 响应</summary>
+        <pre id="raw">（尚未请求）</pre>
+      </details>
+    </div>
+  </div>
+
+  <!-- 接口清单 -->
+  <div class="pane" id="pane-routes">
+    <div class="card" id="routesCard"><div class="empty">加载中…</div></div>
+  </div>
+
+  <!-- 管理 -->
+  <div class="pane" id="pane-manage">
+    <div class="card" id="mgUsers"><div class="empty">加载中…</div></div>
+    <div id="mgDetail"></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+async function api(path, opts) {
+  return fetch(path, Object.assign({ credentials: "same-origin" }, opts));
+}
+
+/* ---------- 登录态 ---------- */
+async function bootstrap() {
+  try {
+    const r = await api("/api/auth/me");
+    if (r.ok) {
+      const d = await r.json();
+      showApp(d.user);
+    } else {
+      showLogin();
+    }
+  } catch (e) {
+    showLogin();
+  }
+}
+
+function showLogin() {
+  $("login-view").classList.remove("hidden");
+  $("app-view").classList.add("hidden");
+  $("logout").classList.add("hidden");
+  $("who").textContent = "";
+}
+function showApp(user) {
+  $("login-view").classList.add("hidden");
+  $("app-view").classList.remove("hidden");
+  $("logout").classList.remove("hidden");
+  $("who").textContent = "👤 " + user;
+  loadOverview();
+}
+
+$("loginBtn").addEventListener("click", async () => {
+  const s = $("loginStatus"); s.className = "status";
+  try {
+    const r = await api("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: $("lu").value, password: $("lp").value }),
+    });
+    if (r.ok) { window.location.href = "/"; }
+    else { const d = await r.json().catch(()=>({})); s.className = "status err"; s.textContent = d.error || "登录失败"; }
+  } catch (e) { s.className = "status err"; s.textContent = "请求失败：" + e.message; }
+});
+
+$("logout").addEventListener("click", async () => {
+  await api("/api/auth/logout", { method: "POST" });
+  window.location.href = "/login";
+});
+
+/* ---------- Tab 切换 ---------- */
+document.querySelectorAll(".tab").forEach(t => {
+  t.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x => x.classList.remove("active"));
+    t.classList.add("active");
+    const p = $("pane-" + t.dataset.tab);
+    p.classList.add("active");
+    if (t.dataset.tab === "overview") loadOverview();
+    if (t.dataset.tab === "routes") loadRoutes();
+    if (t.dataset.tab === "manage") loadManage();
+  });
+});
+
+/* ---------- 概览 ---------- */
+async function loadOverview() {
+  const card = $("healthCard");
+  try {
+    const r = await api("/health"); const d = await r.json();
+    const rows = [
+      ["服务状态", d.ok ? "✅ 正常" : "❌ 异常"],
+      ["默认 Provider", d.activeProvider],
+      ["Provider 数量", d.providerCount],
+      ["存储后端", d.storage && d.storage.backend],
+      ["用户数", d.storage && d.storage.users],
+      ["服务时间", d.uptime ? (d.uptime + "s") : "—"],
+    ];
+    card.innerHTML = "<h2>服务概览</h2><div class='kv'>" +
+      rows.map(([k, v]) => "<b>" + k + "</b><span>" + (v ?? "—") + "</span>").join("") + "</div>";
+  } catch (e) {
+    card.innerHTML = "<div class='empty'>加载失败：" + e.message + "</div>";
+  }
+  loadProviders();
+}
+
+/* ---------- 接口清单 ---------- */
+async function loadRoutes() {
+  const card = $("routesCard");
+  try {
+    const r = await api("/api/info"); const d = await r.json();
+    const routes = (d.routes || []).sort((a, b) => a.path.localeCompare(b.path));
+    card.innerHTML = "<h2>接口清单（" + routes.length + "）</h2><table class='rtable'>" +
+      "<thead><tr><th>方法</th><th>路径</th><th>说明</th></tr></thead><tbody>" +
+      routes.map(rt => "<tr><td><span class='pill'>" + rt.method + "</span></td><td><code>" +
+        rt.path + "</code></td><td>" + (rt.doc || "") + "</td></tr>").join("") + "</tbody></table>";
+  } catch (e) {
+    card.innerHTML = "<div class='empty'>加载失败：" + e.message + "</div>";
+  }
+}
+
+/* ---------- 测试台 ---------- */
+const btn = $("go");
+function setStatus(msg, isErr) {
+  const s = $("status"); s.textContent = msg; s.className = "status" + (isErr ? " err" : "");
+}
+function renderBadges(d) {
+  const b = $("badges"); b.style.display = "flex"; b.innerHTML = "";
+  const add = (txt, cls) => { const el = document.createElement("span");
+    el.className = "badge " + (cls || ""); el.textContent = txt; b.appendChild(el); };
+  add("provider: " + (d.provider || "?"), "provider");
+  add("source: " + (d.source || "?"), "");
+  if (d.llmFallback) add("⚠ 已回落本地规则", "warn"); else add("模型正常", "ok");
+  add("归一化 sum=" + (d.totalProbability ?? 0).toFixed(2), "");
+}
+function renderResults(d) {
+  const box = $("results"); box.innerHTML = "";
+  const list = (d.answers || []);
+  if (!list.length) { box.innerHTML = '<div class="empty">没有返回任何答案。</div>'; return; }
+  const maxP = Math.max(...list.map(a => a.probability || 0), 0.0001);
+  for (const a of list) {
+    const p = a.probability || 0;
+    const pct = (p * 100).toFixed(1) + "%";
+    const width = (p / maxP * 100).toFixed(1) + "%";
+    const div = document.createElement("div"); div.className = "answer";
+    div.innerHTML = '<div class="top"><span class="rank">#' + (a.rank ?? "-") +
+      '</span><span class="ans-text"></span><span class="prob">' + pct + "</span></div>" +
+      '<div class="bar"><i style="width:' + width + '"></i></div><div class="reason"></div>';
+    div.querySelector(".ans-text").textContent = a.answer || "(空)";
+    div.querySelector(".reason").textContent = a.reason ? "依据：" + a.reason : "";
+    box.appendChild(div);
+  }
+}
+async function callApi() {
+  const question = $("q").value.trim();
+  const n = parseInt($("n").value, 10);
+  const use_llm = $("useLlm").checked;
+  if (!question) { setStatus("请先填写问题。", true); return; }
+  if (!(n >= 1 && n <= 10)) { setStatus("n 必须是 1–10 之间的整数。", true); return; }
+  btn.disabled = true; setStatus("请求中…");
+  try {
+    const resp = await api("/api/answers/predict", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ question, n, use_llm }),
+    });
+    const data = await resp.json();
+    $("raw").textContent = JSON.stringify(data, null, 2);
+    if (!resp.ok) {
+      setStatus("HTTP " + resp.status + "：" + (data.detail || data.error || "未知错误"), true);
+      $("badges").style.display = "none"; $("results").innerHTML = ""; return;
+    }
+    renderBadges(data); renderResults(data);
+    setStatus("成功 · 返回 " + (data.answers || []).length + " 个答案。");
+  } catch (e) {
+    setStatus("请求失败：" + e.message, true);
+    $("badges").style.display = "none"; $("results").innerHTML = "";
+  } finally { btn.disabled = false; }
+}
+btn.addEventListener("click", callApi);
+$("q").addEventListener("keydown", (e) => { if ((e.metaKey || e.ctrlKey) && e.key === "Enter") callApi(); });
+
+/* ---------- 管理 tab：等级 / 金币 / 投票 / 删除 ---------- */
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+}
+function redirectLogin() { window.location.href = "/login"; }
+
+let mgCurrent = null;
+function mgStatus(m, err) { const s = $("mgStatus"); if (!s) return; s.textContent = m; s.className = "status" + (err ? " err" : ""); }
+
+async function loadManage() {
+  const card = $("mgUsers");
+  try {
+    const r = await api("/api/admin/users");
+    if (r.status === 401) return redirectLogin();
+    const d = await r.json();
+    const users = d.users || [];
+    if (!users.length) { card.innerHTML = '<div class="empty">暂无用户</div>'; $("mgDetail").innerHTML = ""; return; }
+    card.innerHTML = '<table class="rtable"><thead><tr><th>用户</th><th>等级</th><th>金币</th><th>投票</th><th></th></tr></thead><tbody>' +
+      users.map(u => "<tr><td>" + esc(u.name || u.id) + ' <span style="color:#6b7280">' + esc(u.id) + "</span></td>" +
+        "<td>" + (u.level ?? 1) + "</td><td>" + (u.coins ?? 0) + "</td><td>" + (u.votesCount ?? 0) + "</td>" +
+        '<td><button class="pill" data-id="' + esc(u.id) + '">管理</button></td></tr>').join("") + "</tbody></table>";
+    card.querySelectorAll("button[data-id]").forEach(b => b.onclick = () => selectManageUser(b.dataset.id));
+  } catch (e) { card.innerHTML = '<div class="empty">加载失败：' + e.message + "</div>"; }
+}
+
+async function selectManageUser(id) {
+  mgCurrent = id;
+  const box = $("mgDetail");
+  box.innerHTML = '<div class="empty">加载中…</div>';
+  try {
+    const r = await api("/api/admin/users/" + id);
+    if (r.status === 401) return redirectLogin();
+    const d = await r.json();
+    const u = d.user || {};
+    box.innerHTML =
+      '<div class="card"><h2>用户：' + esc(u.name || u.id) + ' <span style="font-size:13px;color:#6b7280">' + esc(u.id) + "</span></h2>" +
+      '<div class="row" style="margin-bottom:14px"><div class="field"><label>等级</label>' +
+        '<div class="kv"><b>当前</b><span id="mgLevelNow">' + d.level + "</span></div>" +
+        '<input id="mgLevel" type="number" min="0" value="' + d.level + '"></div>' +
+        '<button class="primary" id="mgSetLevel">设置等级</button></div>' +
+      '<div class="row" style="margin-bottom:14px"><div class="field"><label>金币</label>' +
+        '<div class="kv"><b>当前</b><span id="mgCoinsNow">' + d.coins + "</span></div>" +
+        '<input id="mgCoins" type="number" min="0" value="' + d.coins + '"></div>' +
+        '<button class="primary" id="mgSetCoins">设置金币</button></div>' +
+      '<button id="mgDelete" style="background:var(--red)">删除用户</button>' +
+      '<div class="status" id="mgStatus"></div></div>' +
+      '<div class="card"><h2>投票记录（' + d.votesCount + '）</h2><div id="mgVotes"><div class="empty">加载中…</div></div></div>';
+    $("mgSetLevel").onclick = () => setLevel(id);
+    $("mgSetCoins").onclick = () => setCoins(id);
+    $("mgDelete").onclick = () => deleteUser(id);
+    loadVotes(id);
+  } catch (e) { box.innerHTML = '<div class="empty">加载失败：' + e.message + "</div>"; }
+}
+
+async function setLevel(id) {
+  const v = parseInt($("mgLevel").value, 10);
+  if (!(v >= 0)) { mgStatus("等级必须是非负整数", true); return; }
+  const r = await api("/api/admin/users/" + id + "/level", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ level: v }) });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) return redirectLogin();
+  if (!r.ok) return mgStatus(d.error || "设置失败", true);
+  $("mgLevelNow").textContent = d.level; mgStatus("等级已更新为 " + d.level);
+}
+
+async function setCoins(id) {
+  const v = parseInt($("mgCoins").value, 10);
+  if (!(v >= 0)) { mgStatus("金币必须是非负整数", true); return; }
+  const r = await api("/api/admin/users/" + id + "/coins", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ coins: v }) });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) return redirectLogin();
+  if (!r.ok) return mgStatus(d.error || "设置失败", true);
+  $("mgCoinsNow").textContent = d.coins; mgStatus("金币已更新为 " + d.coins);
+}
+
+async function deleteUser(id) {
+  if (!confirm("确认删除用户 " + id + " 及其全部数据？此操作不可恢复。")) return;
+  const r = await api("/api/admin/users/" + id, { method: "DELETE" });
+  const d = await r.json().catch(() => ({}));
+  if (r.status === 401) return redirectLogin();
+  if (!r.ok) return mgStatus(d.error || "删除失败", true);
+  mgCurrent = null; $("mgDetail").innerHTML = '<div class="empty">已删除。</div>'; loadManage();
+}
+
+async function loadVotes(id) {
+  const box = $("mgVotes");
+  try {
+    const r = await api("/api/admin/users/" + id + "/votes");
+    if (r.status === 401) return redirectLogin();
+    const d = await r.json();
+    const vs = d.votes || [];
+    if (!vs.length) { box.innerHTML = '<div class="empty">暂无投票记录</div>'; return; }
+    box.innerHTML = vs.slice().reverse().map(v =>
+      '<div class="answer"><div class="top"><span class="ans-text">' + esc(v.question || "(未命名投票)") +
+      '</span><span class="prob">权重 ' + (v.weight || 1) + "</span></div>" +
+      '<div class="reason">选择：' + esc(v.choice || "-") +
+      (v.detail ? " · " + esc(v.detail) : "") + " · " + new Date((v.ts || 0)).toLocaleString() + "</div></div>"
+    ).join("");
+  } catch (e) { box.innerHTML = '<div class="empty">加载失败：' + e.message + "</div>"; }
+}
+
+/* ---------- LLM Provider 管理（概览页） ---------- */
+let provEditingId = null;
+
+function provStatus(m, err) { const s = $("provStatus"); if (!s) return; s.textContent = m; s.className = "status" + (err ? " err" : ""); }
+
+async function loadProviders() {
+  const box = $("provTable");
+  try {
+    const r = await api("/api/admin/providers");
+    if (r.status === 401) return redirectLogin();
+    const d = await r.json();
+    const list = d.providers || [];
+    if (!list.length) { box.innerHTML = '<div class="empty">暂无 Provider</div>'; provStatus(""); return; }
+    box.innerHTML = list.map(p => {
+      const isDefault = p.id === d.defaultId;
+      const typeBadge = p.type === "echo"
+        ? '<span class="badge echo">本地规则</span>'
+        : '<span class="badge openai">OpenAI 兼容</span>';
+      const defBadge = isDefault ? '<span class="badge default">默认</span>' : "";
+      const enabledBadge = p.enabled ? "" : '<span class="badge warn">已禁用</span>';
+      const meta = p.type === "echo"
+        ? "不联网 · 免 Key"
+        : ((p.baseUrl || "") + (p.model ? " · " + p.model : "") + (p.hasApiKey ? " · 已配 Key" : " · 未配 Key"));
+      const actions = [
+        isDefault ? "" : '<button data-act="default" data-id="' + esc(p.id) + '">设为默认</button>',
+        '<button data-act="edit" data-id="' + esc(p.id) + '">编辑</button>',
+        '<button data-act="test" data-id="' + esc(p.id) + '">测试</button>',
+        p.id === "echo" ? "" : '<button class="danger" data-act="delete" data-id="' + esc(p.id) + '">删除</button>',
+      ].join("");
+      return '<div class="prov-row"><div class="prov-main">' +
+        '<div class="prov-name">' + esc(p.name) + " " + typeBadge + " " + defBadge + " " + enabledBadge + "</div>" +
+        '<div class="prov-meta">' + esc(p.id) + " · " + esc(meta) + "</div></div>" +
+        '<div class="prov-actions">' + actions + "</div></div>";
+    }).join("");
+    box.querySelectorAll("button[data-act]").forEach(b => {
+      b.onclick = () => {
+        const act = b.dataset.act, id = b.dataset.id;
+        if (act === "default") setDefaultProvider(id);
+        else if (act === "edit") editProvider(id);
+        else if (act === "delete") deleteProvider(id);
+        else if (act === "test") testProvider(id, b);
+      };
+    });
+    provStatus("共 " + list.length + " 个 Provider，默认：" + (d.defaultId || "-") + "（修改实时生效）");
+  } catch (e) { box.innerHTML = '<div class="empty">加载失败：' + e.message + "</div>"; }
+}
+
+function renderProviderForm(existing) {
+  const editing = !!existing;
+  const p = existing || { type: "openai", enabled: true, isDefault: false, temperature: 0.3, maxTokens: 2048, timeout: 90, jsonMode: false };
+  provEditingId = editing ? p.id : null;
+  const slot = $("providerFormSlot");
+  slot.innerHTML = '<div class="card form-card">' +
+    '<h2>' + (editing ? "编辑 Provider" : "新增 Provider") +
+      (editing ? ' <span style="font-size:13px;color:#6b7280">(' + esc(p.id) + ')</span>' : "") + "</h2>" +
+    '<div class="row">' +
+      '<div class="field"><label>名称</label><input id="pf_name" type="text" value="' + esc(p.name || "") + '" placeholder="如 DeepSeek / 通义千问"></div>' +
+      '<div class="field n"><label>类型</label><select id="pf_type">' +
+        '<option value="openai"' + (p.type === "openai" ? " selected" : "") + '>OpenAI 兼容</option>' +
+        '<option value="echo"' + (p.type === "echo" ? " selected" : "") + '>本地规则</option></select></div>' +
+    "</div>" +
+    '<div id="pf_net">' +
+      '<div class="row" style="margin-top:12px">' +
+        '<div class="field"><label>Base URL</label><input id="pf_baseUrl" type="text" value="' + esc(p.baseUrl || "") + '" placeholder="https://api.deepseek.com/v1"></div>' +
+        '<div class="field"><label>API Key</label><input id="pf_apiKey" type="password" value="" placeholder="' +
+          (p.hasApiKey ? "（已配置，留空则保持不变）" : "sk-...") + '"></div>' +
+      "</div>" +
+      '<div class="row" style="margin-top:12px">' +
+        '<div class="field"><label>模型名</label><input id="pf_model" type="text" value="' + esc(p.model || "") + '" placeholder="deepseek-chat"></div>' +
+        '<div class="field"><label>视觉模型（可选）</label><input id="pf_visionModel" type="text" value="' + esc(p.visionModel || "") + '" placeholder="留空则用模型名"></div>' +
+      "</div>" +
+      '<div class="row" style="margin-top:12px">' +
+        '<div class="field n"><label>温度</label><input id="pf_temperature" type="number" step="0.1" min="0" max="2" value="' + p.temperature + '"></div>' +
+        '<div class="field n"><label>最大 Token</label><input id="pf_maxTokens" type="number" min="1" value="' + p.maxTokens + '"></div>' +
+        '<div class="field n"><label>超时(秒)</label><input id="pf_timeout" type="number" min="1" value="' + p.timeout + '"></div>' +
+        '<label class="switch"><input id="pf_jsonMode" type="checkbox"' + (p.jsonMode ? " checked" : "") + '> 发送 response_format(json)</label>' +
+      "</div>" +
+    "</div>" +
+    '<div class="row" style="margin-top:12px">' +
+      '<label class="switch"><input id="pf_enabled" type="checkbox"' + (p.enabled ? " checked" : "") + '> 启用</label>' +
+      '<label class="switch"><input id="pf_isDefault" type="checkbox"' + (p.isDefault ? " checked" : "") + '> 设为默认</label>' +
+      '<button class="primary" id="pf_save" style="margin-left:auto">保存</button>' +
+      '<button id="pf_cancel">取消</button>' +
+    "</div>" +
+    '<div class="status" id="pf_status"></div></div>';
+  const net = $("pf_net");
+  const toggleNet = () => { net.style.display = $("pf_type").value === "openai" ? "" : "none"; };
+  $("pf_type").onchange = toggleNet; toggleNet();
+  $("pf_cancel").onclick = () => { provEditingId = null; slot.innerHTML = ""; };
+  $("pf_save").onclick = saveProvider;
+}
+
+function pfStatus(m, err) { const s = $("pf_status"); if (!s) return; s.textContent = m; s.className = "status" + (err ? " err" : ""); }
+
+function collectProviderForm() {
+  const type = $("pf_type").value;
+  const cfg = {
+    name: $("pf_name").value.trim() || "未命名 Provider",
+    type,
+    enabled: $("pf_enabled").checked,
+    isDefault: $("pf_isDefault").checked,
+  };
+  if (type === "openai") {
+    cfg.baseUrl = $("pf_baseUrl").value.trim();
+    cfg.apiKey = $("pf_apiKey").value;          // 空字符串 → 更新时保留原值
+    cfg.model = $("pf_model").value.trim();
+    cfg.visionModel = $("pf_visionModel").value.trim();
+    cfg.temperature = parseFloat($("pf_temperature").value) || 0;
+    cfg.maxTokens = parseInt($("pf_maxTokens").value, 10) || 2048;
+    cfg.timeout = parseInt($("pf_timeout").value, 10) || 90;
+    cfg.jsonMode = $("pf_jsonMode").checked;
+  }
+  return cfg;
+}
+
+async function saveProvider() {
+  const cfg = collectProviderForm();
+  if (cfg.type === "openai" && (!cfg.baseUrl || !cfg.model)) {
+    pfStatus("OpenAI 兼容类型必须填写 Base URL 和模型名", true); return;
+  }
+  const id = provEditingId;
+  const url = id ? ("/api/admin/providers/" + id) : "/api/admin/providers";
+  const method = id ? "PUT" : "POST";
+  pfStatus("保存中…");
+  try {
+    const r = await api(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(cfg) });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) return redirectLogin();
+    if (!r.ok) return pfStatus(d.error || "保存失败", true);
+    $("providerFormSlot").innerHTML = ""; provEditingId = null;
+    await loadOverview();
+    provStatus("已" + (id ? "更新" : "新增") + "：" + (d.name || "") + "（实时生效）");
+  } catch (e) { pfStatus("请求失败：" + e.message, true); }
+}
+
+async function editProvider(id) {
+  try {
+    const r = await api("/api/admin/providers/" + id + "?reveal=1");
+    if (r.status === 401) return redirectLogin();
+    const d = await r.json();
+    renderProviderForm(d);
+  } catch (e) { provStatus("加载失败：" + e.message, true); }
+}
+
+async function deleteProvider(id) {
+  if (!confirm("确认删除 Provider " + id + "？此操作不可恢复（echo 不可删除）。")) return;
+  provStatus("删除中…");
+  try {
+    const r = await api("/api/admin/providers/" + id, { method: "DELETE" });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) return redirectLogin();
+    if (!r.ok) return provStatus(d.error || "删除失败", true);
+    await loadOverview();
+    provStatus("已删除 " + id + "（实时生效）");
+  } catch (e) { provStatus("请求失败：" + e.message, true); }
+}
+
+async function setDefaultProvider(id) {
+  provStatus("设置默认中…");
+  try {
+    const r = await api("/api/admin/providers/" + id + "/default", { method: "POST" });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) return redirectLogin();
+    if (!r.ok) return provStatus(d.error || "设置失败", true);
+    await loadOverview();
+    provStatus("已设为默认：" + id + "（实时生效，下次请求即用）");
+  } catch (e) { provStatus("请求失败：" + e.message, true); }
+}
+
+async function testProvider(id, btn) {
+  const orig = btn.textContent; btn.disabled = true; btn.textContent = "测试中…";
+  try {
+    const r = await api("/api/admin/providers/" + id + "/test", { method: "POST" });
+    const d = await r.json().catch(() => ({}));
+    if (r.status === 401) return redirectLogin();
+    if (d.ok) provStatus("测试通过 ✅" + (d.sample ? "（样例：「" + d.sample + "」）" : ""));
+    else provStatus("测试失败 ❌ " + (d.detail || d.reason || "未知原因"), true);
+  } catch (e) { provStatus("请求失败：" + e.message, true); }
+  finally { btn.disabled = false; btn.textContent = orig; }
+}
+
+$("provAdd").addEventListener("click", () => renderProviderForm(null));
+
+bootstrap();
+</script>
+</body>
+</html>
